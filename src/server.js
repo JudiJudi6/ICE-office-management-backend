@@ -1,21 +1,30 @@
+const mongoose = require('mongoose')
 const dotenv = require('dotenv');
 const path = require('path');
 
-// Ładuje zmienne środowiskowe z pliku .env
-const result = dotenv.config({ path: path.resolve(__dirname, './config.env') });
+const result_config = dotenv.config({ path: path.resolve(__dirname, './config.env') })
 
-// Sprawdza, czy wystąpił błąd podczas ładowania pliku .env
-if (result.error) {
-    console.error("ERROR💥:", result.error.message);
-    process.exit(1); // Zamyka proces, jeśli plik .env nie może być załadowany
+if (result_config.error) {
+    console.error("ERROR💥:", result_config.error.message)
+    process.exit(1);
 }
+
+const DB = process.env.DATABASE.replace('<PASSWORD>', process.env.DATABASE_PASSWORD)
+
+mongoose.connect(DB).then(() => {
+    console.log('DB connection successful❤️')
+}).catch(err => {
+    console.error('Failed to connect with DataBase 💥')
+    console.error(err)
+    process.exit(1)
+})
 
 const app = require('./app');
 const port = process.env.PORT; // Pobiera port zmienną z process.env
 
 if (!port) {
     console.error("ERROR💥: PORT is not defined in the .env file.");
-    process.exit(1); // Zamyka proces, jeśli zmienna PORT nie jest zdefiniowana w pliku .env
+    process.exit(1);
 }
 
 app.listen(port, () => {
