@@ -1,6 +1,6 @@
-const express = require("express")
+import express from "express"
 
-const loginRouter = require('./routes/loginRouter')
+import loginRouter from './routes/loginRouter'
 //const singUpRouter = require('./routes/singUpRouter')
 
 const app = express()
@@ -10,4 +10,4 @@ app.use(express.json())
 app.use('/api/v1/login', loginRouter)
 //app.use('/api/v1/sing-up', singUpRouter)
 
-module.exports = app
+export default app

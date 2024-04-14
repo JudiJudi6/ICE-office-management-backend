@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
     mail: {
@@ -12,6 +12,6 @@ const userSchema = new mongoose.Schema({
     }
 });
 
-const User = mongoose.model('User', userSchema); // Poprawienie eksportu modelu
+const userModel = mongoose.model('User', userSchema); 
 
-module.exports = User; // Eksport modelu użytkownika
+export default userModel; 
