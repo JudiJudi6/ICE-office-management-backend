@@ -7,13 +7,11 @@ export async function getOffice(req: Request, res: Response) {
     res.status(200).json({ status: "success", data: { offices } });
   } catch (error) {
     console.error("Office GET method error:", error);
-    res
-      .status(500)
-      .send({
-        status: "failed",
-        message: "Office GET method failed",
-        error: error,
-      });
+    res.status(500).send({
+      status: "failed",
+      message: "Office GET method failed",
+      error: error,
+    });
   }
 }
 
@@ -24,12 +22,10 @@ export async function sendOffice(req: Request, res: Response) {
     res.status(200).send({ status: "success", data: newOffice });
   } catch (error) {
     console.error("Office POST method error:", error);
-    res
-      .status(500)
-      .send({
-        status: "failed",
-        message: "Office POST method failed",
-        error: error,
-      });
+    res.status(500).send({
+      status: "failed",
+      message: "Office POST method failed",
+      error: error,
+    });
   }
 }

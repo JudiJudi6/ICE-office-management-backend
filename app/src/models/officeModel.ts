@@ -63,10 +63,10 @@ type WallRenderData = {
 };
 
 type OfficeRenderData = {
-  deskData: DeskRenderData[];
-  floorData: FloorRenderData[];
-  elementData: ElementRenderData[];
-  wallData: WallRenderData[];
+  desks: DeskRenderData[];
+  floor: FloorRenderData[];
+  elements: ElementRenderData[];
+  walls: WallRenderData[];
 };
 
 type ReservationData = {
@@ -90,7 +90,7 @@ const deskRenderDataSchema = new mongoose.Schema<DeskRenderData>({
   deskPath: { type: String, required: false },
   deskName: { type: String, required: false },
   equipPath: { type: String, required: false },
-  equipment: [{ type: String, required: false }],
+  equipment: [{ type: String }],
   id: { type: String, required: false },
   rotX: { type: Number, required: false },
   rotY: { type: Number, required: false },
@@ -138,41 +138,44 @@ const wallRenderDataSchema = new mongoose.Schema<WallRenderData>({
 });
 
 const officeSchema = new mongoose.Schema<OfficeData>({
-  name: { type: String, required: false },
-  address: { type: String, required: false },
+  id: { type: String, required: true },
+  name: { type: String, required: true },
+  address: { type: String, required: true },
   renderData: {
-    deskData: [deskRenderDataSchema],
-    floorData: [floorRenderDataSchema],
-    elementData: [elementRenderDataSchema],
-    wallData: [wallRenderDataSchema],
+    desks: [{ type: deskRenderDataSchema, required: true }],
+    floor: [{ type: floorRenderDataSchema, required: false }],
+    elements: [{ type: elementRenderDataSchema, required: false }],
+    walls: [{ type: wallRenderDataSchema, required: false }],
   },
-  deskList: {
-    deskId: { type: String, required: false },
-    deskName: { type: String, required: false },
-    equipment: [{ type: String }],
-    reservationData: [
-      {
-        reservationId: { type: String, required: false },
-        userId: { type: String, required: false },
-        user: {
-          name: { type: String, required: false },
-          surname: { type: String, required: false },
+  deskList: [
+    {
+      deskId: { type: String, required: true },
+      deskName: { type: String, required: true },
+      equipment: [{ type: String }],
+      reservationData: [
+        {
+          reservationId: { type: String, required: false },
+          userId: { type: String, required: false },
+          user: {
+            name: { type: String, required: false },
+            surname: { type: String, required: false },
+          },
+          startTime: { type: Date, required: false },
+          endTime: { type: Date, required: false },
+          createdAt: { type: Date, required: false },
         },
-        startTime: { type: Date, required: false },
-        endTime: { type: Date, required: false },
-        createdAt: { type: Date, required: false },
-      },
-    ],
-    active: { type: Boolean, default: true },
-  },
-  authorId: { type: String, required: false },
+      ],
+      active: { type: Boolean, default: true },
+    },
+  ],
+  authorId: { type: String, required: true },
   users: [
     {
       name: { type: String, required: false },
       surname: { type: String, required: false },
     },
   ],
-  invitationCode: { type: String, required: false },
+  invitationCode: { type: String, required: true },
 });
 
 export const OfficeModel = mongoose.model<OfficeData>("Office", officeSchema);
