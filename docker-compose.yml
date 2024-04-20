@@ -1,11 +1,11 @@
-version: '3.8'
+version: "3.8"
 services:
   backend-container:
     build: .
     ports:
       - "3000:3000"
+    command: ["npm", "run", "dev"]
     volumes:
       - ./app:/app
-      - /app/node_modules
     env_file:
       - ./.env
