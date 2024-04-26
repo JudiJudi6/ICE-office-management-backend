@@ -1,4 +1,9 @@
 import express from 'express';
-// import singUpController from '../controllers/singUpController.ts';
+import { register } from '../controllers/singUpController';
+
 const router = express.Router()
+
+router.route("/").post(register);
+
+export default router;
 

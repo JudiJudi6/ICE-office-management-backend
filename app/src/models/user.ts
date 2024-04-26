@@ -1,17 +1,28 @@
 import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
-    mail: {
-        type: String,
-        required: [true, 'User must have an email'],
-        unique: true
-    },
-    password: {
-        type: String,
-        required: [true, 'User must have a password']
+    name: {type: String, required: true},
+    surname: {type: String, required: true},
+    email: {type: String, required: true},
+    authentication: {
+        password: {type: String, required: true, select: false},
+        repeatPassword: {type: String, required: true, select: false},
+        salt: {type: String, select: false},
+        sessionToken: {type: String, select: false},
     }
 });
 
 const userModel = mongoose.model('User', userSchema); 
 
 export default userModel; 
+
+export const getUsers = () => userModel.find();
+export const getUserByEmail = (email: string) => userModel.findOne({ email });
+export const getUserBySessionToken = (sesionToken: string) => userModel.findOne({
+    'authentication.sessionToken': sesionToken,
+});
+
+export const getUserById = (id: string) => userModel.findById({ id });
+export const createUser = (values: Record<string, any>) => new userModel(values).save().then((user) => user.toObject());
+export const deleteUserById = (id: string) =>userModel.findOneAndDelete({_id: id});
+export const updateUserById = (id: string, values: Record<string, any>) => userModel.findByIdAndUpdate(id,values);
