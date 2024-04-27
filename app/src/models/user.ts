@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const userSchema = new mongoose.Schema({
     name: {type: String, required: true},
     surname: {type: String, required: true},
-    email: {type: String, required: true, unique: true},
+    mail: {type: String, required: true, unique: true},
     authentication: {
         password: {type: String, required: true, select: false},
         repeatPassword: {type: String, required: true, select: false},
@@ -17,7 +17,7 @@ const userModel = mongoose.model('User', userSchema);
 export default userModel; 
 
 export const getUsers = () => userModel.find();
-export const getUserByEmail = (email: string) => userModel.findOne({ email });
+export const getUserByEmail = (mail: string) => userModel.findOne({ mail });
 export const getUserBySessionToken = (sesionToken: string) => userModel.findOne({
     'authentication.sessionToken': sesionToken,
 });
