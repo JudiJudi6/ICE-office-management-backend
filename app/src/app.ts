@@ -2,7 +2,7 @@ import express from "express";
 
 import loginRouter from "./routes/loginRouter";
 import officeRouter from "./routes/officeRouter";
-import signUpRouter from "./routes/singUpRouter"
+import signUpRouter from "./routes/signUpRouter"
 import cors from "cors";
 
 const app = express();
