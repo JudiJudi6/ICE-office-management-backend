@@ -56,6 +56,7 @@ type WallRenderData = {
   endX: number;
   endY: number;
   endZ: number;
+  transparent: boolean;
   id: string;
   x: number;
   y: number;
@@ -131,6 +132,7 @@ const wallRenderDataSchema = new mongoose.Schema<WallRenderData>({
   endX: { type: Number, required: false },
   endY: { type: Number, required: false },
   endZ: { type: Number, required: false },
+  transparent: { type: Boolean, required: false },
   id: { type: String, required: false },
   x: { type: Number, required: false },
   y: { type: Number, required: false },
