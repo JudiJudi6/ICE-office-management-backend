@@ -68,3 +68,20 @@ export async function joinOfficeByCode(req: Request, res: Response) {
     });
   }
 }
+
+export async function getOfficeById(req: Request, res:Response) {
+  try{
+    const office = await OfficeModel.findById(req.params.id);
+
+    res.status(200).send({status: "success", data: office})
+  }
+  catch (error) {
+    console.error("Office GET all method error:", error);
+    res.status(500).send({
+      status: "failed",
+      message: "Office GET all method failed",
+      error: error,
+    });
+  }
+}
+
