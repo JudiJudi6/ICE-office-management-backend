@@ -1,5 +1,7 @@
 import { Response, Request } from "express";
 import { OfficeModel } from "../models/officeModel";
+import  { getUserById }  from "../models/user"
+import mongoose from "mongoose";
 
 export async function getOffice(req: Request, res: Response) {
   try {
@@ -18,7 +20,17 @@ export async function getOffice(req: Request, res: Response) {
 export async function sendOffice(req: Request, res: Response) {
   try {
     const newOffice = new OfficeModel(req.body);
-    await newOffice.save();
+    const author = await getUserById(req.body.authorId);
+    await newOffice.save()
+
+    if(author){
+          await author.offices.push(req.body.id);
+    }
+    else{
+      throw new Error("how tf did u make an office with no account lol")
+    }
+
+
     res.status(200).send({ status: "success", data: newOffice });
   } catch (error) {
     console.error("Office POST method error:", error);
