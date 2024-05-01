@@ -181,3 +181,5 @@ const officeSchema = new mongoose.Schema<OfficeData>({
 });
 
 export const OfficeModel = mongoose.model<OfficeData>("Office", officeSchema);
+
+export const getOfficeByInvCode = (code: string) => OfficeModel.findOne({invitationCode: code});
