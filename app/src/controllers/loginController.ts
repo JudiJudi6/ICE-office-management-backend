@@ -1,4 +1,4 @@
-import userModel from "../models/user";
+import userModel, { getUserBySessionToken } from "../models/user";
 import { Request, Response } from "express";
 import { createUser, getUserByEmail } from "../models/user";
 import { authentication, random } from "../models/helpers";
@@ -74,5 +74,24 @@ export const login = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     return res.sendStatus(400);
+  }
+};
+
+export const getUser = async (req: Request, res: Response) => {
+  const sessionToken = req.body.token;
+  
+  try {
+    const user = await getUserBySessionToken(sessionToken);
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ status: "failed", message: "User not found" });
+    }
+
+    return res.status(200).json(user);
+  } catch (error) {
+    console.log(error);
+    return res.sendStatus(500);
   }
 };
