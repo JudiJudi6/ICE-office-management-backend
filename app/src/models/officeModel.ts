@@ -5,7 +5,7 @@ interface OfficeData {
   name: string;
   address: string;
   renderData: OfficeRenderData;
-  deskList: Desks;
+  deskList: Desks[];
   authorId: string;
   users: { name: string; surname: string }[];
   invitationCode: string;
@@ -70,7 +70,7 @@ type OfficeRenderData = {
   walls: WallRenderData[];
 };
 
-type ReservationData = {
+export type ReservationData = {
   reservationId: string;
   userId: string;
   user: { name: string; surname: string };
@@ -79,7 +79,7 @@ type ReservationData = {
   createdAt: Date;
 };
 
-export type Desks = {
+type Desks = {
   deskId: string;
   deskName: string;
   equipment: string[];
