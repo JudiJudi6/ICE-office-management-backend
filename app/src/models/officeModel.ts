@@ -79,7 +79,7 @@ type ReservationData = {
   createdAt: Date;
 };
 
-type Desks = {
+export type Desks = {
   deskId: string;
   deskName: string;
   equipment: string[];
