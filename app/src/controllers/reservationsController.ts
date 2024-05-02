@@ -1,10 +1,10 @@
 import { Response, Request } from "express";
-import { OfficeModel, ReservationData } from "../models/officeModel";
+import { OfficeModel } from "../models/officeModel";
 import mongoose from "mongoose";
 
 export async function getDeskReservations(req: Request, res: Response) {
   try {
-    let reservations:any = [];
+    let reservations: any = [];
     const filter = {
       id: req.params.officeId,
       "deskList.deskId": req.params.deskId,
@@ -15,16 +15,14 @@ export async function getDeskReservations(req: Request, res: Response) {
     if (!desk) {
       throw new Error("No office with given ID");
     } else {
-        reservations  = desk.deskList.find(
+      reservations = desk.deskList.find(
         (o) => o.deskId === req.params.deskId
       )?.reservationData;
-      console.log(reservations)
     }
-    if (reservations){
-            res.status(200).send({ status: "success", data: reservations });
-    }
-    else {
-        throw new Error("Reservation could not be made")
+    if (reservations) {
+      res.status(200).send({ status: "success", data: reservations });
+    } else {
+      throw new Error("Reservations could not be acquired");
     }
   } catch (error) {
     console.error("Reservations GET method error:", error);
@@ -56,16 +54,48 @@ export async function makeDeskReservations(req: Request, res: Response) {
         throw new Error("No desk with given ID in this office");
       } else {
         reservations?.push(newReservation);
-        
       }
     }
     await desk.save();
     res.status(200).send({ status: "success", data: desk.deskList });
   } catch (error) {
-    console.error("Office POST method error:", error);
+    console.error("Reservation POST method error:", error);
     res.status(500).send({
       status: "failed",
-      message: "Office POST method failed",
+      message: "Reservation POST method failed",
+      error: error,
+    });
+  }
+}
+
+export async function updateDeskReservation(req: Request, res: Response) {
+  try {
+    const filter = {
+      id: req.params.officeId,
+      "deskList.deskId": req.params.deskId,
+      "deskList.reservationData.reservationId": req.params.reservationId,
+    };
+    const update = {
+      $set: {
+        "deskList.$.reservationData": {
+          userId: req.body.userId,
+          user: { name: req.body.user.name, surname: req.body.user.surname },
+          startTime: req.body.startTime,
+          endTime: req.body.endTime,
+        },
+      },
+    };
+
+    const desk = await OfficeModel.findOneAndUpdate(filter, update, {
+      new: true,
+    });
+    console.log(desk);
+    res.status(200).send({ status: "success", data: desk });
+  } catch (error) {
+    console.error("Reservations PATCH method error:", error);
+    res.status(500).send({
+      status: "failed",
+      message: "Reservations PATCH method failed",
       error: error,
     });
   }

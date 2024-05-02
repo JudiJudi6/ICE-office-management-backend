@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-interface OfficeData {
+export interface OfficeData {
   id: string;
   name: string;
   address: string;
