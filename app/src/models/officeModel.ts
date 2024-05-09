@@ -1,11 +1,11 @@
 import mongoose from "mongoose";
 
-interface OfficeData {
+export interface OfficeData {
   id: string;
   name: string;
   address: string;
   renderData: OfficeRenderData;
-  deskList: Desks;
+  deskList: Desks[];
   authorId: string;
   users: { name: string; surname: string }[];
   invitationCode: string;
@@ -70,7 +70,7 @@ type OfficeRenderData = {
   walls: WallRenderData[];
 };
 
-type ReservationData = {
+export type ReservationData = {
   reservationId: string;
   userId: string;
   user: { name: string; surname: string };
@@ -181,3 +181,5 @@ const officeSchema = new mongoose.Schema<OfficeData>({
 });
 
 export const OfficeModel = mongoose.model<OfficeData>("Office", officeSchema);
+
+export const getOfficeByInvCode = (code: string) => OfficeModel.findOne({invitationCode: code});
