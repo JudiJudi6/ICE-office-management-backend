@@ -106,4 +106,3 @@ export async function patchDeskAvailability(req: Request, res:Response) {
     });
   }
 }
-
