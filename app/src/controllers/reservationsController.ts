@@ -96,7 +96,6 @@ export async function updateDeskReservation(req: Request, res: Response) {
         if (reservation){
           reservation.startTime = req.body.startTime
           reservation.endTime = req.body.endTime
-          console.log(reservation);
           await desk.save()
         }
       }
@@ -140,7 +139,6 @@ export async function deleteDeskReservation(req: Request, res: Response) {
         if (reservation){
           const index = reservations.indexOf(reservation)
           reservations.splice(index, 1)
-          console.log(reservations);
           await desk.save()
         }
       }
