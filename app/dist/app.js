@@ -1,0 +1,21 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const loginRouter_1 = __importDefault(require("./routes/loginRouter"));
+const officeRouter_1 = __importDefault(require("./routes/officeRouter"));
+const signUpRouter_1 = __importDefault(require("./routes/signUpRouter"));
+const cors_1 = __importDefault(require("cors"));
+const userRouter_1 = __importDefault(require("./routes/userRouter"));
+const reservationsRouter_1 = __importDefault(require("./routes/reservationsRouter"));
+const app = (0, express_1.default)();
+app.use((0, cors_1.default)());
+app.use(express_1.default.json());
+app.use("/api/v1/login", loginRouter_1.default);
+app.use("/api/v1/office", officeRouter_1.default);
+app.use("/api/v1/signup", signUpRouter_1.default);
+app.use("/api/v1/user", userRouter_1.default);
+app.use("/api/v1/reservations", reservationsRouter_1.default);
+exports.default = app;

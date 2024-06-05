@@ -53,6 +53,12 @@ export async function makeDeskReservations(req: Request, res: Response) {
       if (!reservations) {
         throw new Error("No desk with given ID in this office");
       } else {
+        for (let i = 0; i < reservations.length; i++) {
+          if(new Date(reservations[i].startTime) < new Date(newReservation.endTime) &&
+          new Date(newReservation.startTime) < new Date(reservations[i].endTime)) {
+            throw new Error("Can't add the reservation (the date is already taken)");
+          }
+        }
         reservations?.push(newReservation);
       }
     }
@@ -94,6 +100,10 @@ export async function updateDeskReservation(req: Request, res: Response) {
           (o) => o.reservationId === req.params.reservationId
         );
         if (reservation){
+          if(new Date(reservation.startTime) < new Date(req.body.endTime) &&
+          new Date(req.body.startTime) < new Date(reservation.endTime)) {
+            throw new Error("Can't change the reservation (the date is already taken)");
+          }
           reservation.startTime = req.body.startTime
           reservation.endTime = req.body.endTime
           await desk.save()
