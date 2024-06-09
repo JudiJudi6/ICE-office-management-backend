@@ -46,31 +46,61 @@ export async function makeDeskReservations(req: Request, res: Response) {
 
     if (!desk) {
       throw new Error("No office with given ID");
-    } else {
-      const reservations = desk.deskList.find(
-        (o) => o.deskId === req.params.deskId
-      )?.reservationData;
-      if (!reservations) {
-        throw new Error("No desk with given ID in this office");
-      } else {
-        for (let i = 0; i < reservations.length; i++) {
-          if((new Date(reservations[i].startTime) < new Date(newReservation.endTime) &&
-          new Date(newReservation.startTime) < new Date(reservations[i].endTime))|| 
-          (new Date(newReservation.startTime) >= new Date(newReservation.endTime))) {
-            throw new Error("Can't add the reservation");
-          }
-        }
-        reservations?.push(newReservation);
+    }
+
+    const deskData = desk.deskList.find((o) => o.deskId === req.params.deskId);
+    if (!deskData) {
+      throw new Error("No desk with given ID in this office");
+    }
+
+    const reservations = deskData.reservationData;
+    if (!reservations) {
+      throw new Error("No reservation data found for this desk");
+    }
+
+    const newStartTime = new Date(newReservation.startTime);
+    const newEndTime = new Date(newReservation.endTime);
+    const now = new Date();
+
+    if (isNaN(newStartTime.getTime()) || isNaN(newEndTime.getTime())) {
+      throw new Error("Invalid date format. Please use ISO format.");
+    }
+
+    if (newStartTime >= newEndTime) {
+      throw new Error("Incorrect date range, please use the correct one");
+    }
+
+    if (newStartTime < now) {
+      throw new Error("Cannot make a reservation for a past date");
+    }
+
+    for (let i = 0; i < reservations.length; i++) {
+      const reservationStartTime = new Date(reservations[i].startTime);
+      const reservationEndTime = new Date(reservations[i].endTime);
+
+      if (
+        newStartTime < reservationEndTime &&
+        newEndTime > reservationStartTime
+      ) {
+        throw new Error("Date range is already taken, please try another one");
       }
     }
+
+    reservations.push(newReservation);
+
     await desk.save();
-    res.status(200).send({ status: "success", data: desk.deskList });
+
+    res.status(200).json({ status: "success", data: desk.deskList });
   } catch (error) {
     console.error("Reservation POST method error:", error);
-    res.status(500).send({
+    let errorMessage = "Unknown error occurred";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    res.status(500).json({
       status: "failed",
       message: "Reservation POST method failed",
-      error: error,
+      error: errorMessage,
     });
   }
 }
@@ -83,42 +113,67 @@ export async function updateDeskReservation(req: Request, res: Response) {
       "deskList.reservationData.reservationId": req.params.reservationId,
     };
 
-
-    let reservations: any = [];
-    let reservation: any = [];
     const desk = await OfficeModel.findOne(filter);
 
     if (!desk) {
       throw new Error("No office with given ID");
-    } else {
-      const reservations = desk.deskList.find(
-        (o) => o.deskId === req.params.deskId
-      )?.reservationData;
-      if (!reservations) {
-        throw new Error("No desk with given ID in this office");
-      } else {
-        const reservation = reservations.find(
-          (o) => o.reservationId === req.params.reservationId
-        );
-        if (reservation){
-          if(new Date(reservation.startTime) < new Date(req.body.endTime) &&
-          new Date(req.body.startTime) < new Date(reservation.endTime) || 
-          (new Date(reservation.startTime) >= new Date(reservation.endTime))) {
-            throw new Error("Can't change the reservation");
-          }
-          reservation.startTime = req.body.startTime
-          reservation.endTime = req.body.endTime
-          await desk.save()
-        }
+    }
+
+    const deskData = desk.deskList.find((o) => o.deskId === req.params.deskId);
+    if (!deskData) {
+      throw new Error("No desk with given ID in this office");
+    }
+
+    const reservations = deskData.reservationData;
+    const reservationData = reservations.find((o) => o.reservationId === req.params.reservationId);
+    if (!reservationData) {
+      throw new Error("No reservation with given ID in this desk");
+    }
+
+    const newStartTime = new Date(req.body.startTime);
+    const newEndTime = new Date(req.body.endTime);
+    const now = new Date();
+
+    if (isNaN(newStartTime.getTime()) || isNaN(newEndTime.getTime())) {
+      throw new Error("Invalid date format. Please use ISO format.");
+    }
+
+    if (newStartTime < now) {
+      throw new Error("Cannot update reservation to a past date");
+    }
+
+    if (newStartTime >= newEndTime) {
+      throw new Error("Incorrect date range, please use the correct one");
+    }
+
+    for (let i = 0; i < reservations.length; i++) {
+      const reservationStartTime = new Date(reservations[i].startTime);
+      const reservationEndTime = new Date(reservations[i].endTime);
+
+      if (
+        reservations[i].reservationId !== req.params.reservationId &&
+        newStartTime < reservationEndTime &&
+        newEndTime > reservationStartTime
+      ) {
+        throw new Error("Date range is already taken, please try another one");
       }
     }
-    res.status(200).send({ status: "success", data: reservation });
+
+    reservationData.startTime = req.body.startTime;
+    reservationData.endTime = req.body.endTime;
+    await desk.save();
+
+    res.status(200).json({ status: "success", data: reservationData });
   } catch (error) {
     console.error("Reservations PATCH method error:", error);
-    res.status(500).send({
+    let errorMessage = "Unknown error occurred";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    res.status(500).json({
       status: "failed",
       message: "Reservations PATCH method failed",
-      error: error,
+      error: errorMessage,
     });
   }
 }
