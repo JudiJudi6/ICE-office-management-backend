@@ -1,5 +1,5 @@
 import { Response, Request } from "express";
-import { OfficeModel } from "../models/officeModel";
+import { OfficeData, OfficeModel } from "../models/officeModel";
 import mongoose from "mongoose";
 
 export async function getDeskReservations(req: Request, res: Response) {
@@ -216,6 +216,41 @@ export async function deleteDeskReservation(req: Request, res: Response) {
     res.status(500).send({
       status: "failed",
       message: "Reservations PATCH method failed",
+      error: error,
+    });
+  }
+}
+
+export async function getUserReservations(req: Request, res: Response) {
+  try {
+    let reservations: any = [];
+    let office: any
+    let resData: any 
+    let desk: any
+    let officeArray: any[]
+
+    const offices = await OfficeModel.find();
+    if (offices) {
+
+      for (office in offices){
+        const deskList = offices[office].deskList
+        for (desk in deskList){
+          for (resData in deskList[desk].reservationData){
+            const reservation = deskList[desk].reservationData[resData]
+            if (reservation.userId === req.params.userId){
+              reservations.push(reservation)
+            }
+          }
+        }
+      }
+    }
+    console.log(reservations)
+    res.status(200).send({reservations})
+  } catch (error) {
+    console.error("Reservations GET method error:", error);
+    res.status(500).send({
+      status: "failed",
+      message: "Reservations GET method failed",
       error: error,
     });
   }

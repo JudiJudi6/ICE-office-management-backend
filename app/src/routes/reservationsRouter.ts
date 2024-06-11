@@ -3,7 +3,8 @@ import {
   getDeskReservations,
   makeDeskReservations,
   updateDeskReservation,
-  deleteDeskReservation
+  deleteDeskReservation,
+  getUserReservations
 } from "../controllers/reservationsController";
 
 const reservationsRouter = express.Router();
@@ -16,5 +17,8 @@ reservationsRouter
   .route("/:officeId/:deskId/:reservationId")
   .patch(updateDeskReservation)
   .delete(deleteDeskReservation)
+reservationsRouter
+  .route("/:userId")
+  .get(getUserReservations)
 
 export default reservationsRouter;
