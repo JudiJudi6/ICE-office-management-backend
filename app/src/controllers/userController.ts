@@ -26,16 +26,16 @@ export async function getUserAllOffices(req: Request, res: Response) {
       let userOfficesObj = [];
 
       for (let i = 0; i < userOffices.offices.length; i++) {
-        userOfficesObj.push(await OfficeModel.findOne({ id: userOffices.offices[i] }))
+        userOfficesObj.push(
+          await OfficeModel.findOne({ id: userOffices.offices[i] })
+        );
       }
 
-      res
-        .status(200)
-        .json({
-          status: "success",
-          data: userOfficesObj,
-          length: userOfficesObj.length,
-        });
+      res.status(200).json({
+        status: "success",
+        data: { offices: userOfficesObj },
+        length: userOfficesObj.length,
+      });
     } else {
       throw new Error("No user with given ID");
     }
