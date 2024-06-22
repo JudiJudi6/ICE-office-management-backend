@@ -13,7 +13,7 @@ export async function getDeskReservations(req: Request, res: Response) {
     const desk = await OfficeModel.findOne(filter);
 
     if (!desk) {
-      throw new Error("No office with given ID");
+      throw new Error("No office or desk with given ID");
     } else {
       reservations = desk.deskList.find(
         (o) => o.deskId === req.params.deskId
@@ -125,7 +125,9 @@ export async function updateDeskReservation(req: Request, res: Response) {
     }
 
     const reservations = deskData.reservationData;
-    const reservationData = reservations.find((o) => o.reservationId === req.params.reservationId);
+    const reservationData = reservations.find(
+      (o) => o.reservationId === req.params.reservationId
+    );
     if (!reservationData) {
       throw new Error("No reservation with given ID in this desk");
     }
@@ -186,7 +188,6 @@ export async function deleteDeskReservation(req: Request, res: Response) {
       "deskList.reservationData.reservationId": req.params.reservationId,
     };
 
-
     let reservations: any = [];
     let reservation: any = [];
     const desk = await OfficeModel.findOne(filter);
@@ -203,10 +204,10 @@ export async function deleteDeskReservation(req: Request, res: Response) {
         const reservation = reservations.find(
           (o) => o.reservationId === req.params.reservationId
         );
-        if (reservation){
-          const index = reservations.indexOf(reservation)
-          reservations.splice(index, 1)
-          await desk.save()
+        if (reservation) {
+          const index = reservations.indexOf(reservation);
+          reservations.splice(index, 1);
+          await desk.save();
         }
       }
     }
@@ -223,31 +224,44 @@ export async function deleteDeskReservation(req: Request, res: Response) {
 
 export async function getUserReservations(req: Request, res: Response) {
   try {
-    let reservations: any = [];
-    let resData: any 
-    let desk: any
-    let officeArray: any[]
+    const reservations: any[] = [];
+    const officeId = req.params.officeId;
+    const userId = req.params.userId;
 
-    const filter = {
-      id: req.params.officeId
+    // Ensure officeId and userId are provided
+    if (!officeId || !userId) {
+      return res.status(400).send({
+        status: "failed",
+        message: "Office ID and User ID are required",
+      });
     }
-    console.log('!!!!')
-    const office = await OfficeModel.find(filter);
 
-    if (office) {
-      
-        const deskList = office[0].deskList
-        for (desk in deskList){
-          for (resData in deskList[desk].reservationData){
-            const reservation = deskList[desk].reservationData[resData]
-            if ((reservation.userId === req.params.userId)){
-              reservations.push(reservation)
+    const filter = { id: officeId };
+    console.log("Fetching office with filter:", filter);
+
+    const office = await OfficeModel.findOne(filter);
+    console.log(office);
+    // Ensure the office exists
+    if (!office) {
+      return res.status(404).send({
+        status: "failed",
+        message: "Office not found",
+      });
+    } else {
+      const deskList = office.deskList;
+      if (deskList) {
+        deskList.forEach((desk: any) => {
+          desk.reservationData.forEach((reservation: any) => {
+            if (reservation.userId === userId) {
+              reservations.push(reservation);
             }
-          }
+          });
+        });
       }
+
+      console.log("Reservations:", reservations);
+      res.status(200).send({ reservations });
     }
-    console.log(reservations)
-    res.status(200).send({reservations})
   } catch (error) {
     console.error("Reservations GET method error:", error);
     res.status(500).send({

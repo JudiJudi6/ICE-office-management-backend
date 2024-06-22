@@ -18,7 +18,7 @@ reservationsRouter
   .patch(updateDeskReservation)
   .delete(deleteDeskReservation)
 reservationsRouter
-  .route("user/:officeId/:userId")
+  .route("/user/:officeId/:userId")
   .get(getUserReservations)
 
 export default reservationsRouter;
