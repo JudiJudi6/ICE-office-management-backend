@@ -224,24 +224,26 @@ export async function deleteDeskReservation(req: Request, res: Response) {
 export async function getUserReservations(req: Request, res: Response) {
   try {
     let reservations: any = [];
-    let office: any
     let resData: any 
     let desk: any
     let officeArray: any[]
 
-    const offices = await OfficeModel.find();
-    if (offices) {
+    const filter = {
+      id: req.params.officeId
+    }
+    console.log('!!!!')
+    const office = await OfficeModel.find(filter);
 
-      for (office in offices){
-        const deskList = offices[office].deskList
+    if (office) {
+      
+        const deskList = office[0].deskList
         for (desk in deskList){
           for (resData in deskList[desk].reservationData){
             const reservation = deskList[desk].reservationData[resData]
-            if (reservation.userId === req.params.userId){
+            if ((reservation.userId === req.params.userId)){
               reservations.push(reservation)
             }
           }
-        }
       }
     }
     console.log(reservations)
