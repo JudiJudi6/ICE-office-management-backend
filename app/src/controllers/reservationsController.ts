@@ -13,7 +13,7 @@ export async function getDeskReservations(req: Request, res: Response) {
     const desk = await OfficeModel.findOne(filter);
 
     if (!desk) {
-      throw new Error("No office or desk with given ID");
+      throw new Error("No office with given ID");
     } else {
       reservations = desk.deskList.find(
         (o) => o.deskId === req.params.deskId
@@ -125,9 +125,7 @@ export async function updateDeskReservation(req: Request, res: Response) {
     }
 
     const reservations = deskData.reservationData;
-    const reservationData = reservations.find(
-      (o) => o.reservationId === req.params.reservationId
-    );
+    const reservationData = reservations.find((o) => o.reservationId === req.params.reservationId);
     if (!reservationData) {
       throw new Error("No reservation with given ID in this desk");
     }
@@ -188,6 +186,7 @@ export async function deleteDeskReservation(req: Request, res: Response) {
       "deskList.reservationData.reservationId": req.params.reservationId,
     };
 
+
     let reservations: any = [];
     let reservation: any = [];
     const desk = await OfficeModel.findOne(filter);
@@ -204,10 +203,10 @@ export async function deleteDeskReservation(req: Request, res: Response) {
         const reservation = reservations.find(
           (o) => o.reservationId === req.params.reservationId
         );
-        if (reservation) {
-          const index = reservations.indexOf(reservation);
-          reservations.splice(index, 1);
-          await desk.save();
+        if (reservation){
+          const index = reservations.indexOf(reservation)
+          reservations.splice(index, 1)
+          await desk.save()
         }
       }
     }
@@ -240,20 +239,36 @@ export async function getUserReservations(req: Request, res: Response) {
     console.log("Fetching office with filter:", filter);
 
     const office = await OfficeModel.findOne(filter);
-    console.log(office);
-    // Ensure the office exists
-    if (!office) {
-      return res.status(404).send({
-        status: "failed",
-        message: "Office not found",
+    if (office) {
+      console.log({
+        id: office.id,
+        name: office.name,
+        address: office.address,
+        deskList: office.deskList,
+        authorId: office.authorId,
+        users: office.users,
+        invitationCode: office.invitationCode,
+        __v: office.__v,
       });
-    } else {
+
       const deskList = office.deskList;
       if (deskList) {
         deskList.forEach((desk: any) => {
           desk.reservationData.forEach((reservation: any) => {
             if (reservation.userId === userId) {
-              reservations.push(reservation);
+              // Dodaj deskId oraz deskName do obiektu rezerwacji i przekształć go, aby zawierał tylko wymagane pola
+              const reservationWithDeskInfo = {
+                user: reservation.user,
+                reservationId: reservation.reservationId,
+                userId: reservation.userId,
+                startTime: reservation.startTime,
+                endTime: reservation.endTime,
+                createdAt: reservation.createdAt,
+                _id: reservation._id,
+                deskId: desk.deskId,
+                deskName: desk.deskName
+              };
+              reservations.push(reservationWithDeskInfo);
             }
           });
         });
@@ -261,6 +276,11 @@ export async function getUserReservations(req: Request, res: Response) {
 
       console.log("Reservations:", reservations);
       res.status(200).send({ reservations });
+    } else {
+      return res.status(404).send({
+        status: "failed",
+        message: "Office not found",
+      });
     }
   } catch (error) {
     console.error("Reservations GET method error:", error);
